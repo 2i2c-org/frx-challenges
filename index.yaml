@@ -3,6 +3,15 @@ entries:
   unnamed:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2024-10-08T14:48:02.648210475Z"
+    description: A Helm chart for Kubernetes
+    digest: b9422b37addfdc3c75a00681183e36ea59c7adbb883c327c9e77b0613e608af8
+    name: unnamed
+    urls:
+    - https://2i2c.org/unnamed-thingity-thing/unnamed-0.0.1-0.dev.git.218.ha4b5bf7.tgz
+    version: 0.0.1-0.dev.git.218.ha4b5bf7
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2024-10-07T12:23:08.434509968Z"
     description: A Helm chart for Kubernetes
     digest: ea29afec69cd59da2e4dda92243f7a9f75af2175c596a64229042711a2a4beea
@@ -667,4 +676,4 @@ entries:
     urls:
     - https://2i2c.org/unnamed-thingity-thing/unnamed-0.0.1-0.dev.git.60.hdab71e5.tgz
     version: 0.0.1-0.dev.git.60.hdab71e5
-generated: "2024-10-07T12:23:08.434044863Z"
+generated: "2024-10-08T14:48:02.647741337Z"
