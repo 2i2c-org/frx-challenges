@@ -6,6 +6,8 @@
     <link rel="stylesheet"
           href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
 {% endblock head %}
 {% block body %}
     <div class="container py-2">
@@ -39,7 +41,7 @@
                             <tr>
                                 <td>{{ v.id }}</td>
                                 <td>{{ v.filename }}</td>
-                                <td>{{ v.date_created|date:"M j Y" }}</td>
+                                <td>{{ v.date_created|date:"c" }}</td>
                                 <td>{{ v.latest_evaluation.status }}</td>
                                 {% for r in v.latest_evaluation.ordered_results %}
                                     <td scope="col">
@@ -61,7 +63,21 @@
     </div>
     <script>
         async function main() {
-            const resultsTable = new DataTable("#results");
+            dayjs.extend(window.dayjs_plugin_relativeTime);
+            const resultsTable = new DataTable("#results", {
+                order: [
+                    // Apply reverse chronological ordering by default
+                    [2, "desc"]
+                ],
+                columnDefs: [
+                    {
+                        targets: 2,
+                        render: (data) => {
+                            return dayjs(data).fromNow();
+                        }
+                    }
+                ]
+            });
         }
 
         main();

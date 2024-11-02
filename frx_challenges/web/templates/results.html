@@ -25,65 +25,56 @@
     <div class="container py-2">
         <div class="row py-2">
             <div class="col py-2">
-                <table class="table" id="results">
+                <table id="results" class="table table-striped table-sm">
                     <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Date created</th>
+                            {% for dc in evaluation_display_config %}<th scope="col">{{ dc.display_name }}</th>{% endfor %}
+                        </tr>
                     </thead>
                     <tbody>
+                        {% for result in results %}
+                            <tr>
+                                <td>{{ result.submission.id }}</td>
+                                <td>
+                                    <a href='{% url "submissions-detail" result.submission.id %}'>{{ result.submission.name }}</a>
+                                </td>
+                                <td>{{ result.submission.description }}</td>
+                                <td>{{ result.submission.date_created|date:"c" }}</td>
+                                {% for r in result.best_version.latest_evaluation.ordered_results %}
+                                    <td scope="col">
+                                        {% if r %}{{ r }}{% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
     <script>
-    dayjs.extend(window.dayjs_plugin_relativeTime);
-    async function main() {
-      const resp = await fetch("/results");
-      const respData = await resp.json();
+      async function main() {
+          dayjs.extend(window.dayjs_plugin_relativeTime);
+          const resultsTable = new DataTable("#results", {
+              order: [
+                  // Apply reverse chronological ordering by default
+                  [3, "desc"]
+              ],
+              columnDefs: [
+                  {
+                      targets: 3,
+                      render: (data) => {
+                          return dayjs(data).fromNow();
+                      }
+                  }
+              ]
+          });
+      }
 
-      const displayConfig = respData["display_config"];
-      const evaluations = respData["results"];
-
-      const columns = [
-        { data: "username", title: "username" },
-        { data: "status", title: "status" },
-        {
-          data: "last_updated",
-          name: "last_updated",
-          title: "last updated",
-          type: "date",
-          render: (data) => {
-            return dayjs(data).fromNow();
-          },
-        },
-      ].concat(
-        displayConfig.map((dc) => {
-          return {
-            title: dc.display_name,
-            data: (row) => {
-              if (row.result && dc.result_key in row.result) {
-                return row.result[dc.result_key];
-              } else {
-                return "";
-              }
-            },
-          };
-        }),
-      );
-
-      let table = new DataTable("#results", {
-        data: evaluations,
-        columns: columns,
-        order: {
-          name: "last_updated",
-          dir: "desc",
-        },
-      });
-
-      setInterval(() => {
-        table.ajax.reload();
-      }, 600 * 1000);
-    }
-
-    main();
+      main();
     </script>
 {% endblock body %}

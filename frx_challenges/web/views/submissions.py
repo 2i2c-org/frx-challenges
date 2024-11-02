@@ -60,7 +60,7 @@ def detail(request: HttpRequest, id: int) -> HttpResponse:
         submission = queryset.get(id=id)
     except Submission.DoesNotExist:
         raise Http404("Submission does not exist")
-    versions = submission.version_set.all()
+    versions = submission.versions.all()
     return render(
         request,
         "submission/detail.html",
