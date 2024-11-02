@@ -1,4 +1,12 @@
 {% extends "page.html" %}
+{% block head %}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet"
+          href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+{% endblock head %}
 {% block body %}
     <div class="container py-2">
         <div class="row py-2">
@@ -16,13 +24,14 @@
                 </div>
             </div>
             <div class="row py-2">
-                <table class="table table-striped table-sm">
+                <table id="results" class="table table-striped table-sm">
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
                             <th scope="col">Filename</th>
                             <th scope="col">Date uploaded</th>
-                            <th scope="col">Evaluation</th>
+                            <th scope="col">Evaluation Status</th>
+                            {% for dc in evaluation_display_config %}<th scope="col">{{ dc.display_name }}</th>{% endfor %}
                         </tr>
                     </thead>
                     <tbody>
@@ -31,13 +40,12 @@
                                 <td>{{ v.id }}</td>
                                 <td>{{ v.filename }}</td>
                                 <td>{{ v.date_created|date:"M j Y" }}</td>
-                                {% if v.evaluation_set.all %}
-                                    <td>
-                                        <a href="{% url 'evaluation-detail' v.evaluation_set.all.0.id %}">View score</a>
+                                <td>{{ v.latest_evaluation.status }}</td>
+                                {% for r in v.latest_evaluation.ordered_results %}
+                                    <td scope="col">
+                                        {% if r %}{{ r }}{% endif %}
                                     </td>
-                                {% else %}
-                                    <td>Pending</td>
-                                {% endif %}
+                                {% endfor %}
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -51,4 +59,11 @@
             </div>
         {% endif %}
     </div>
+    <script>
+        async function main() {
+            const resultsTable = new DataTable("#results");
+        }
+
+        main();
+    </script>
 {% endblock body %}

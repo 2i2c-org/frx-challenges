@@ -10,9 +10,8 @@ import aiodocker.containers
 import fsspec
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db.models import Exists, OuterRef, Q
 
-from ...models import Evaluation, Version
+from ...models import Evaluation
 
 logger = logging.getLogger()
 
@@ -167,15 +166,6 @@ class Command(BaseCommand):
     async def ahandle(self):
         evaluator = DockerEvaluator()
         while True:
-            # Create evaluation objects when they do not exist
-            versions_without_evaluations = Version.objects.filter(
-                Q(status=Version.Status.UPLOADED),
-                ~Exists(Evaluation.objects.filter(version=OuterRef("pk"))),
-            )
-            async for v in versions_without_evaluations:
-                e = Evaluation(version=v)
-                await e.asave()
-
             # Get the Evaluations that have not been started yet
             unstarted_evaluations = Evaluation.objects.select_related("version").filter(
                 status=Evaluation.Status.NOT_STARTED

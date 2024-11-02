@@ -3,6 +3,7 @@ import tempfile
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from markdown_it import MarkdownIt
@@ -24,14 +25,20 @@ def upload(request: HttpRequest, id: int) -> HttpResponse:
             _, filepath = tempfile.mkstemp(prefix=settings.SUBMISSIONS_UPLOADS_DIR)
             with open(filepath, "wb") as f:
                 f.write(request.FILES["file"].read())
-            s = Version(
-                submission=Submission.objects.get(id=id),
-                user=request.user,
-                status=Version.Status.UPLOADED,
-                filename=request.FILES["file"].name,
-                data_uri=f"file:///{filepath}",
-            )
-            s.save()
+            with transaction.atomic():
+                v = Version(
+                    submission=Submission.objects.get(id=id),
+                    user=request.user,
+                    status=Version.Status.UPLOADED,
+                    filename=request.FILES["file"].name,
+                    data_uri=f"file:///{filepath}",
+                )
+                v.save()
+
+                # Make sure every version has at least one evaluation
+                # by default, even if it has not been started
+                e = Evaluation(version=v)
+                e.save()
             return redirect("submissions-detail", id)
     else:
         form = UploadForm(id=id)
@@ -50,7 +57,10 @@ def upload(request: HttpRequest, id: int) -> HttpResponse:
 def results(request: HttpRequest) -> HttpResponse:
     evaluations = Evaluation.objects.all()
 
-    evaluations_resp = {"config": settings.EVALUATION_DISPLAY_CONFIG, "results": []}
+    evaluations_resp = {
+        "display_config": settings.EVALUATION_DISPLAY_CONFIG,
+        "results": [],
+    }
 
     for ev in evaluations:
         evaluations_resp["results"].append(

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models, transaction
@@ -58,6 +60,16 @@ class Version(models.Model):
     # FIXME: Figure out max_length or use IntChoices
     status = models.CharField(choices=Status, default=Status.NOT_STARTED, max_length=16)
 
+    @property
+    def latest_evaluation(self) -> Evaluation | None:
+        """
+        Return the latest Evaluation if it exists
+        """
+        try:
+            return self.evaluations.latest("last_updated")
+        except Evaluation.DoesNotExist:
+            return None
+
     def __str__(self):
         return f"({self.status}) {self.data_uri}"
 
@@ -79,6 +91,19 @@ class Evaluation(models.Model):
     status = models.CharField(choices=Status, default=Status.NOT_STARTED, max_length=16)
 
     last_updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def ordered_results(self) -> list:
+        """
+        Return results of this evaluation, ordered per EVALUATION_DISPLAY_CONFIG
+        """
+        results_list = []
+        for cf in settings.EVALUATION_DISPLAY_CONFIG:
+            if self.result:
+                results_list.append(self.result.get(cf["result_key"]))
+            else:
+                results_list.append(None)
+        return results_list
 
     def __str__(self):
         return f"({self.status}) {self.result} {self.version.data_uri}"

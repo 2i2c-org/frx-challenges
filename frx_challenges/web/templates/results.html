@@ -40,7 +40,7 @@
       const resp = await fetch("/results");
       const respData = await resp.json();
 
-      const config = respData["config"];
+      const displayConfig = respData["display_config"];
       const evaluations = respData["results"];
 
       const columns = [
@@ -56,12 +56,12 @@
           },
         },
       ].concat(
-        Object.keys(config).map((k) => {
+        displayConfig.map((dc) => {
           return {
-            title: config[k].display_name,
+            title: dc.display_name,
             data: (row) => {
-              if (row.result && k in row.result) {
-                return row.result[k];
+              if (row.result && dc.result_key in row.result) {
+                return row.result[dc.result_key];
               } else {
                 return "";
               }
