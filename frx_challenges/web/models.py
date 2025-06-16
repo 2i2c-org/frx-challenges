@@ -72,6 +72,9 @@ class Submission(models.Model):
         if best_evaluation:
             return best_evaluation.version
 
+    def __str__(self):
+        return f"{self.id}: ({self.user}) {self.created_at.date()}"
+
 
 class Version(models.Model):
     """
@@ -108,7 +111,7 @@ class Version(models.Model):
             return None
 
     def __str__(self):
-        return f"({self.status}) {self.data_uri}"
+        return f"{self.id}: ({self.status}) {self.data_uri}"
 
 
 class Evaluation(models.Model):
@@ -145,7 +148,7 @@ class Evaluation(models.Model):
         return results_list
 
     def __str__(self):
-        return f"({self.status}) {self.result} {self.version.data_uri}"
+        return f"{self.id}: ({self.status}) Version {self.version.id}, Submission {self.version.submission.id}"
 
 
 class Collaborator(models.Model):
