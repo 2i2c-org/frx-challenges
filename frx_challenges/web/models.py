@@ -144,6 +144,24 @@ class Evaluation(models.Model):
                 results_list.append(None)
         return results_list
 
+    @property
+    def percent_complete(self) -> str:
+        """
+        Return the percentage of completion of this evaluation
+        """
+        if self.status == Evaluation.Status.EVALUATED:
+            return "Completed"
+        elif self.status == Evaluation.Status.EVALUATING:
+            if self.result:
+                percent_complete = self.result.get(
+                    "num_evals_done", 0
+                ) / self.result.get("total_evals", 1)
+                return f"{int(percent_complete * 100)}%"
+            else:
+                return "0%"
+        else:
+            return "0%"
+
     def __str__(self):
         return f"({self.status}) {self.result} {self.version.data_uri}"
 
