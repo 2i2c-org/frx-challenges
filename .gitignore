@@ -163,3 +163,7 @@ cython_debug/
 
 # MyST
 _build
+
+# VS Code
+.DS_Store
+.vscode/
