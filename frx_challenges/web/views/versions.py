@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 
@@ -51,9 +52,32 @@ def upload(request: HttpRequest, id: int) -> HttpResponse:
     )
 
 
+@login_required
+def download_results(request: HttpRequest, id: int) -> HttpResponse:
+    version = Version.objects.get(id=id)
+    is_collaborator = _validate_collaborator(request, id)
+    if not is_collaborator:
+        raise Http404(
+            "Full results files are only available to submission collaborators."
+        )
+    evaluation = version.latest_evaluation
+    if not evaluation.result:
+        raise Http404("No results available for this version.")
+
+    # Create a JSON response from the evaluation results
+    response = HttpResponse(
+        content_type="application/json",
+    )
+    response["Content-Disposition"] = f'attachment; filename="results_{id}.json"'
+
+    response.write(json.dumps(evaluation.result, indent=4))
+    return response
+
+
 def view(request: HttpRequest, id: int) -> HttpResponse:
     version = Version.objects.get(id=id)
     evaluation = version.latest_evaluation
+    is_collaborator = _validate_collaborator(request, id)
 
     results_display = []
     if evaluation.result:
@@ -72,6 +96,7 @@ def view(request: HttpRequest, id: int) -> HttpResponse:
             "version": version,
             "evaluation": evaluation,
             "results_display": results_display,
+            "is_collaborator": is_collaborator,
         },
     )
 
