@@ -4,6 +4,9 @@ from .views import collaborators, default, pages, submissions, versions  # teams
 
 urlpatterns = [
     path("upload/<int:id>", versions.upload, name="upload"),
+    path(
+        "download-results/<int:id>", versions.download_results, name="download-results"
+    ),
     path("page/<slug:slug>", pages.view, name="page-view"),
     path("file/<slug:slug>", pages.content_file, name="content-file"),
     path("leaderboard", default.leaderboard, name="leaderboard"),

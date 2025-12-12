@@ -8,19 +8,30 @@
         </h2>
         <div class="row">
             <div class="col-sm-6">
-                Status: <strong>{{ evaluation.status }}</strong>
+                Status:
                 {% if evaluation.status != "EVALUATED" and evaluation.status != "FAILED" %}
+                    {% if evaluation.status == "EVALUATING" %}
+                        <strong>{{ evaluation.percent_complete }} evaluated</strong>
+                    {% else %}
+                        <strong>{{ evaluation.status }}</strong>
+                    {% endif %}
                     <a href="#" onclick="window.location.reload(); return false;">
                         <img alt="Check for updates" src="{% static 'web/arrow-repeat.svg' %}">
                     </a>
+                {% else %}
+                    <strong>{{ evaluation.status }}</strong>
                 {% endif %}
             </div>
             <div class="col-sm-6 text-end">
-                {{ version.user.username }} uploaded <code>{{ version.filename }}</code> {{ version.created_at|timesince }} ago
+                {{ version.user.username }} uploaded <code>{{ version.filename }}</code> {{ version.created_at|timesince }}
+                ago
             </div>
         </div>
         <div class="row py-4">
             <h4>Result</h4>
+            {% if is_collaborator and evaluation.status == 'EVALUATED' %}
+                <a href="{% url 'download-results' version.id %}">Download results</a>
+            {% endif %}
             {% if evaluation.status == 'EVALUATED' %}
                 {% for result_item in results_display %}
                     <div class="col">

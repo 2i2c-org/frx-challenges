@@ -148,7 +148,7 @@ class DockerEvaluator:
             raise
         return "".join(await container.log(stdout=True, stderr=True, follow=False))
 
-    async def get_result(self, state: dict) -> dict:
+    async def get_result(self, state: dict) -> Optional[dict]:
         try:
             container = await self.docker.containers.get(
                 container_id=state["container_id"]
@@ -160,17 +160,22 @@ class DockerEvaluator:
 
         logger.debug(f"Container state: {container['State']}")
 
-        success = (
-            container["State"]["Status"] == "exited"
-            and container["State"]["ExitCode"] == 0
-        )
-        if not success:
+        try:
+            with fsspec.open(state["results_uri"]) as f:
+                result = json.load(f)
+            return result
+        except FileNotFoundError:
+            if container["State"]["Status"] != "exited":
+                logger.warning(
+                    f"Container {state['container_id']} is still running, results file not available yet."
+                )
+            elif container["State"]["Status"] == "exited":
+                if container["State"]["ExitCode"] != 0:
+                    logger.error(
+                        f"Container {state['container_id']} exited with non-zero exit code: {container['State']['ExitCode']}"
+                    )
+                logger.error(f"Results file not found: {state['results_uri']}")
             return None
-        with fsspec.open(state["results_uri"]) as f:
-            result = json.load(f)
-        # FIXME: Remove the results file here somehow
-        # os.remove(results_file)
-        return result
 
 
 class Command(BaseCommand):
@@ -188,9 +193,9 @@ class Command(BaseCommand):
     ):
         state = evaluation.evaluator_state
         is_still_running = await evaluator.is_still_running(state)
+        result = await evaluator.get_result(state)
         if not is_still_running:
             logger.info(f"{evaluation} is completed")
-            result = await evaluator.get_result(state)
             logger.debug(f"Result: {result}")
             evaluation.evaluator_logs = await evaluator.get_logs(state)
             if result is None:
@@ -200,6 +205,9 @@ class Command(BaseCommand):
                 evaluation.result = result
             await evaluation.asave()
         else:
+            if result is not None:
+                evaluation.result = result
+                await evaluation.asave()
             logger.info(f"{evaluation} is still running")
 
     async def ahandle(self):
