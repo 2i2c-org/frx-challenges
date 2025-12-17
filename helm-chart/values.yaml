@@ -56,6 +56,8 @@ yamlSettings:
 
 adminUsers: []
 
+databaseReaders: []
+
 nginx:
   image:
     repository: nginx

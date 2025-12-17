@@ -1,0 +1,17 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sqlite-read-binding
+  namespace: prod
+subjects:
+{{- if .Values.databaseReaders }}
+{{- range .Values.databaseReaders }}
+- kind: User
+  name: {{ . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}
+roleRef:
+  kind: Role 
+  name: sqlite-read
+  apiGroup: rbac.authorization.k8s.io
