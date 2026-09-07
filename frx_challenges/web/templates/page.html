@@ -39,7 +39,7 @@
                             {% for p in pages %}
                                 {% url 'page-view' p.slug as page_url %}
                                 <li class="nav-item {% if page_url == request.path %}active{% endif %}">
-                                    <a class="nav-link " aria-current="page" href="{{ page_url }}">{{ p.title }}</a>
+                                    <a class="nav-link" aria-current="page" href="{{ page_url }}">{{ p.title }}</a>
                                 </li>
                             {% endfor %}
                             {% if challenge_state == "RUNNING" %}
