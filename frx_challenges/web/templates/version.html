@@ -21,7 +21,7 @@
         </div>
         <div class="row py-4">
             <h4>Result</h4>
-            {% if evaluation.status == 'EVALUATED' %}
+            {% if evaluation.status == "EVALUATED" %}
                 {% for result_item in results_display %}
                     <div class="col">
                         <strong class="d-inline">{{ result_item.display_name }}</strong>

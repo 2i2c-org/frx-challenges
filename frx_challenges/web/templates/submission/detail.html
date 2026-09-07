@@ -20,7 +20,7 @@
                     </div>
                     {% if is_owner %}
                         <div class="col-6">
-                            <div class=" col">
+                            <div class="col">
                                 <a href="{% url 'collaborators-list' submission.id %}"
                                    class="btn btn-secondary m-2 float-end">Manage collaborators</a>
                             </div>
@@ -35,9 +35,9 @@
                     {% for md in metadata_display %}
                         <div class="col">
                             <b class="d-inline">{{ md.display_name }}</b>
-                            {% if md.value and md.format == 'uri' %}
+                            {% if md.value and md.format == "uri" %}
                                 <p>
-                                    <a href={{ md.value }}>{{ md.value }}</a>
+                                    <a href="{{ md.value }}">{{ md.value }}</a>
                                 </p>
                             {% elif md.value %}
                                 <p>{{ md.value }}</p>
@@ -78,9 +78,7 @@
                                     <td>{{ v.created_at|date:"c" }}</td>
                                     <td>{{ v.latest_evaluation.status }}</td>
                                     {% for r in v.latest_evaluation.ordered_results %}
-                                        <td scope="col">
-                                            {% if r %}{{ r }}{% endif %}
-                                        </td>
+                                        <td scope="col">{% if r %}{{ r }}{% endif %}</td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}

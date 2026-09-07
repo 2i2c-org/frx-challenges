@@ -7,6 +7,7 @@ return as result a json object with the following keys:
 2. chars - Number of characters (as broadly defined) in the text
 3. lower-case-char - Number of times this particular character appeared in the text (case insensitive)
 """
+
 import argparse
 import json
 import string
