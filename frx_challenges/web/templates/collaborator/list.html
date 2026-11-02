@@ -10,11 +10,11 @@
                     </div>
                     {% if is_submission_owner %}
                         <div class="col-6">
-                            <div class=" col">
+                            <div class="col">
                                 <a href="{% url 'collaborators-add' submission.id %}"
                                    class="btn btn-secondary m-2 float-end">Add collaborator</a>
                             </div>
-                            <div class=" col">
+                            <div class="col">
                                 <a href="{% url 'submissions-detail' submission.id %}"
                                    class="btn btn-primary m-2 float-end">Back to submission</a>
                             </div>
@@ -46,7 +46,7 @@
                                         <td>
                                             {% if is_submission_owner %}
                                                 {% if not c.is_owner %}
-                                                    <a href={% url 'collaborators-delete' submission.id c.id %}>Remove</a>
+                                                    <a href="{% url 'collaborators-delete' submission.id c.id %}">Remove</a>
                                                 {% endif %}
                                             {% endif %}
                                         </td>
